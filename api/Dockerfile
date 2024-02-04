@@ -1,4 +1,4 @@
-FROM ruby:2.7.2-alpine
+FROM ruby:3.0.0-alpine
 
 ARG WORKDIR
 ARG RUNTIME_PACKAGES="nodejs tzdata postgresql-dev postgresql git"
@@ -14,6 +14,7 @@ COPY Gemfile* ./
 
 RUN apk update && \
     apk upgrade && \
+	apk add --no-cache gcompat && \
     apk add --no-cache ${RUNTIME_PACKAGES} && \
     apk add --virtual build-dependencies --no-cache ${DEV_PACKAGES} && \
     bundle install -j4 && \

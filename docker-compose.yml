@@ -2,13 +2,13 @@ version: '3.8'
 
 services:
     db:
-        image: postgres:12.3-alpine
+        image: postgres:14.1-alpine
         environment:
             TZ: UTC
             PGTZ: UTC
             POSTGRES_PASSWORD: $POSTGRES_PASSWORD
         volumes:
-            - ./api/tmp/db:/var/lib/postgresql/data
+            - './api/tmp/db:/var/lib/postgresql/data'
 
     api:
         build:
@@ -18,22 +18,21 @@ services:
         environment:
             POSTGRES_PASSWORD: $POSTGRES_PASSWORD
         volumes:
-            - ./api:/$WORKDIR
+            - './api:/$WORKDIR'
         depends_on:
             - db
         ports:
-            - '$API_PORT:$CONTAINER_PORT'
+            - '$API_PORT:3000'
 
     front:
         build:
             context: ./front
             args:
                 WORKDIR: $WORKDIR
-                CONTAINER_PORT: $CONTAINER_PORT
         command: yarn run dev
         volumes:
             - ./front:/$WORKDIR
         ports:
-            - '$FRONT_PORT:$CONTAINER_PORT'
+            - '$FRONT_PORT:3000'
         depends_on:
             - api
