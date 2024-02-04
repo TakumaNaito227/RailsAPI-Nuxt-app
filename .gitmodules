@@ -1,6 +1,6 @@
-[submodule 'api']
+[submodule "api"]
 	path = api
 	url = https://github.com/TakumaNaito227/test-app-api
-[submodule 'front']
+[submodule "front"]
 	path = front
 	url = https://github.com/TakumaNaito227/test-app-front
