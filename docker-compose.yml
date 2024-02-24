@@ -2,40 +2,40 @@ version: '3.8'
 
 services:
     db:
-        image: postgres:14.1-alpine
+        image: postgres:14.1-alpine # 使用するPostgreSQLのDockerイメージ
         environment:
-            TZ: UTC
-            PGTZ: UTC
-            POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+            TZ: UTC # タイムゾーン設定
+            PGTZ: UTC # PostgreSQLのタイムゾーン設定
+            POSTGRES_PASSWORD: $POSTGRES_PASSWORD # 環境変数からPostgreSQLのパスワードを取得
         volumes:
-            - './api/tmp/db:/var/lib/postgresql/data'
+            - './api/tmp/db:/var/lib/postgresql/data' # ホストマシンとコンテナ間でPostgreSQLデータを永続化
 
     api:
         build:
-            context: ./api
+            context: ./api # Dockerfileの場所（APIのDockerfile）
             args:
-                WORKDIR: $WORKDIR
+                WORKDIR: $WORKDIR # Dockerfile内の環境変数WORKDIRに渡す値
         environment:
-            POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-            API_DOMAIN: 'localhost:$FRONT_PORT'
-        command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+            POSTGRES_PASSWORD: $POSTGRES_PASSWORD # 環境変数からPostgreSQLのパスワードを取得
+            API_DOMAIN: 'localhost:$FRONT_PORT' # フロントエンドからAPIにアクセスするためのドメイン
+        command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'" # PIDファイルを削除してRailsサーバーを起動
         volumes:
-            - './api:/$WORKDIR'
+            - './api:/$WORKDIR' # ホストマシンとコンテナ間でAPIのコードを共有
         depends_on:
-            - db
+            - db # dbサービスが起動してからapiサービスを起動
         ports:
-            - '$API_PORT:3000'
+            - '$API_PORT:3000' # ホストマシンの環境変数API_PORTとコンテナの3000ポートを紐付け
 
     front:
         build:
-            context: ./front
+            context: ./front # Dockerfileの場所（フロントエンドのDockerfile）
             args:
-                WORKDIR: $WORKDIR
-                API_URL: 'http://localhost:$API_PORT'
-        command: yarn run dev
+                WORKDIR: $WORKDIR # Dockerfile内の環境変数WORKDIRに渡す値
+                API_URL: 'http://localhost:$API_PORT' # APIへのURL（環境変数API_PORTを使用）
+        command: yarn run dev # 開発サーバーを起動
         volumes:
-            - ./front:/$WORKDIR
+            - ./front:/$WORKDIR # ホストマシンとコンテナ間でフロントエンドのコードを共有
         ports:
-            - '$FRONT_PORT:3000'
+            - '$FRONT_PORT:3000' # ホストマシンの環境変数FRONT_PORTとコンテナの3000ポートを紐付け
         depends_on:
-            - api
+            - api # apiサービスが起動してからfrontサービスを起動
